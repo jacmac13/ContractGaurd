@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Successful — ContractGuard AI</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#080808;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}
+    .card{background:#101010;border:1px solid #1e1e1e;border-radius:16px;padding:56px 48px;max-width:480px;width:100%}
+    .icon{width:72px;height:72px;background:rgba(34,197,94,.14);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 24px}
+    h1{font-size:28px;font-weight:800;letter-spacing:-.5px;margin-bottom:12px}
+    p{font-size:15px;color:#a0a0a0;line-height:1.65;margin-bottom:32px}
+    .btn{display:inline-block;background:#00b4d8;color:#000;padding:15px 40px;border-radius:8px;font-weight:800;font-size:15px;text-decoration:none;transition:opacity .2s}
+    .btn:hover{opacity:.88}
+    .sub-info{font-size:13px;color:#555;margin-top:20px}
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">✓</div>
+  <h1>You're all set!</h1>
+  <p>Your subscription is active. Start analyzing contracts with no limits — your full risk reports, negotiation playbooks, and missing protections are unlocked.</p>
+  <a href="/" class="btn">⚡ Start Analyzing</a>
+  <p class="sub-info">A receipt has been sent to your email.</p>
+</div>
+<script>
+  // Verify subscription and store customerId in localStorage
+  const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get('session_id');
+  if (sessionId) {
+    fetch('/api/verify-subscription?session_id=' + encodeURIComponent(sessionId))
+      .then(r => r.json())
+      .then(data => {
+        if (data.customerId) {
+          localStorage.setItem('cg_customer_id', data.customerId);
+          localStorage.setItem('cg_plan', data.plan || 'pro');
+          if (data.email) localStorage.setItem('cg_email', data.email);
+        }
+      })
+      .catch(() => {});
+  }
+</script>
+</body>
+</html>

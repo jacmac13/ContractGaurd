@@ -1,5 +1,6 @@
 import express from 'express';
 import Anthropic from '@anthropic-ai/sdk';
+import Stripe from 'stripe';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -10,6 +11,7 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 app.use(cors());
 app.use(express.json({ limit: '150kb' }));
@@ -55,8 +57,112 @@ Focus on practical business risks: IP ownership traps, non-compete overreach, un
 
 Always respond with ONLY valid JSON. No markdown fences, no leading text, no trailing text.`;
 
+// ── Verify active Stripe subscription ──────────────────────────────────────
+async function hasActiveSubscription(customerId) {
+  try {
+    const subs = await stripe.subscriptions.list({
+      customer: customerId,
+      status: 'active',
+      limit: 1
+    });
+    return subs.data.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+// ── POST /api/checkout ──────────────────────────────────────────────────────
+app.post('/api/checkout', async (req, res) => {
+  const { plan } = req.body;
+
+  const priceId = plan === 'business'
+    ? process.env.STRIPE_BUSINESS_PRICE_ID
+    : process.env.STRIPE_PRO_PRICE_ID;
+
+  if (!priceId) {
+    return res.status(500).json({ error: `Price ID for plan "${plan}" is not configured. Set STRIPE_PRO_PRICE_ID / STRIPE_BUSINESS_PRICE_ID in .env` });
+  }
+
+  const appUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`;
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `http://localhost:3000?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://localhost:3000`,
+      allow_promotion_codes: true,
+    });
+
+    res.json({ url: session.url });
+  } catch (err) {
+    console.error('Checkout error:', err.message);
+    res.status(500).json({ error: 'Failed to create checkout session.' });
+  }
+});
+
+// ── GET /api/verify-subscription?session_id=xxx ─────────────────────────────
+app.get('/api/verify-subscription', async (req, res) => {
+  const { session_id } = req.query;
+
+  if (!session_id) {
+    return res.status(400).json({ error: 'session_id is required.' });
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(session_id, {
+      expand: ['subscription', 'customer']
+    });
+
+    if (session.payment_status !== 'paid' && session.status !== 'complete') {
+      return res.status(402).json({ error: 'Payment not completed.' });
+    }
+
+    const customer = session.customer;
+    const customerId = typeof customer === 'string' ? customer : customer.id;
+    const email = typeof customer === 'string' ? null : customer.email;
+
+    // Determine plan from subscription
+    let plan = 'pro';
+    if (session.subscription) {
+      const sub = typeof session.subscription === 'string'
+        ? await stripe.subscriptions.retrieve(session.subscription)
+        : session.subscription;
+      const priceId = sub.items.data[0]?.price?.id;
+      if (priceId === process.env.STRIPE_BUSINESS_PRICE_ID) plan = 'business';
+    }
+
+    res.json({ success: true, customerId, email, plan });
+  } catch (err) {
+    console.error('Verify error:', err.message);
+    res.status(500).json({ error: 'Failed to verify subscription.' });
+  }
+});
+
+// ── GET /api/check-subscription?customer_id=xxx ─────────────────────────────
+app.get('/api/check-subscription', async (req, res) => {
+  const { customer_id } = req.query;
+
+  if (!customer_id) {
+    return res.status(400).json({ error: 'customer_id is required.' });
+  }
+
+  const active = await hasActiveSubscription(customer_id);
+  res.json({ active });
+});
+
+// ── POST /api/analyze ────────────────────────────────────────────────────────
 app.post('/api/analyze', async (req, res) => {
   const { contractText } = req.body;
+  const customerId = req.headers['x-customer-id'];
+
+  // If a customer ID is provided, verify the subscription is active
+  if (customerId) {
+    const active = await hasActiveSubscription(customerId);
+    if (!active) {
+      return res.status(402).json({ error: 'Your subscription is inactive. Please renew to continue.', code: 'subscription_inactive' });
+    }
+  }
 
   if (!contractText || typeof contractText !== 'string') {
     return res.status(400).json({ error: 'Contract text is required.' });

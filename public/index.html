@@ -481,7 +481,7 @@ Tip: Ctrl+Enter to analyze"></textarea>
           <li class="price-feat">Export to PDF</li>
           <li class="price-feat off">API access</li>
         </ul>
-        <a href="#tool" class="btn-price btn-price-fill">Get Pro</a>
+        <button class="btn-price btn-price-fill" onclick="startCheckout('pro', this)">Get Pro</button>
       </div>
       <div class="price-card">
         <div class="price-tier">Business</div>
@@ -496,7 +496,7 @@ Tip: Ctrl+Enter to analyze"></textarea>
           <li class="price-feat">Priority support</li>
           <li class="price-feat">Custom risk rules</li>
         </ul>
-        <a href="#tool" class="btn-price btn-price-out">Get Business</a>
+        <button class="btn-price btn-price-out" onclick="startCheckout('business', this)">Get Business</button>
       </div>
     </div>
   </div>
@@ -787,6 +787,33 @@ async function analyzeContract() {
 document.getElementById('contract-input').addEventListener('keydown', e => {
   if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) analyzeContract();
 });
+
+/* ─── Stripe Checkout ─── */
+async function startCheckout(plan, btn) {
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Redirecting...';
+
+  try {
+    const resp = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan })
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.url) {
+      alert(data.error || 'Could not start checkout. Please try again.');
+      btn.disabled = false;
+      btn.textContent = orig;
+      return;
+    }
+    window.location.href = data.url;
+  } catch {
+    alert('Network error. Make sure the server is running.');
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+}
 </script>
 </body>
 </html>
