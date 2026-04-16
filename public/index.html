@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ContractGuard AI — Never Sign Blind Again</title>
+  <meta name="description" content="AI-powered contract analysis for freelancers and small businesses. Get your risk score, red flags, and negotiation playbook in under 30 seconds.">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#080808;--surface:#101010;--surface2:#181818;--surface3:#202020;
+      --border:#1e1e1e;--border2:#2a2a2a;
+      --accent:#00b4d8;--accent-dim:rgba(0,180,216,.12);--accent-glow:rgba(0,180,216,.35);
+      --purple:#7c3aed;
+      --text:#ffffff;--text2:#a0a0a0;--text3:#555555;
+      --success:#22c55e;--warning:#f59e0b;--danger:#ef4444;--critical:#dc2626;
+      --r:8px;--r2:14px;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}
+
+    /* ── NAV ── */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,8,8,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 40px}
+    .logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;letter-spacing:-.3px}
+    .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+    .logo span{color:var(--accent)}
+    .nav-links{display:flex;align-items:center;gap:28px;list-style:none}
+    .nav-links a{font-size:14px;color:var(--text2);transition:color .2s}
+    .nav-links a:hover{color:var(--text)}
+    .nav-cta{background:var(--accent)!important;color:#000!important;padding:9px 22px;border-radius:var(--r);font-weight:700;font-size:14px;transition:opacity .2s}
+    .nav-cta:hover{opacity:.88}
+
+    /* ── LAYOUT ── */
+    .container{max-width:1180px;margin:0 auto;padding:0 40px}
+    section{padding:100px 0}
+
+    /* ── HERO ── */
+    #hero{padding:200px 0 130px;text-align:center;position:relative;overflow:hidden}
+    #hero::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:900px;height:700px;background:radial-gradient(ellipse,rgba(0,180,216,.10) 0%,transparent 65%);pointer-events:none}
+    .badge{display:inline-flex;align-items:center;gap:7px;background:var(--accent-dim);border:1px solid rgba(0,180,216,.25);color:var(--accent);padding:7px 18px;border-radius:100px;font-size:13px;font-weight:500;margin-bottom:32px}
+    .badge-dot{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:blink 2s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+    h1{font-size:clamp(44px,6.5vw,84px);font-weight:800;letter-spacing:-2.5px;line-height:1.04;margin-bottom:26px}
+    h1 .grad{background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero-sub{font-size:19px;color:var(--text2);max-width:580px;margin:0 auto 52px;line-height:1.65}
+    .hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+    .btn-pri{background:var(--accent);color:#000;padding:17px 40px;border-radius:var(--r);font-weight:800;font-size:16px;display:inline-flex;align-items:center;gap:9px;transition:all .2s;box-shadow:0 0 48px var(--accent-glow)}
+    .btn-pri:hover{transform:translateY(-2px);box-shadow:0 6px 56px var(--accent-glow)}
+    .btn-sec{background:transparent;color:var(--text);padding:17px 40px;border-radius:var(--r);font-weight:600;font-size:16px;display:inline-flex;align-items:center;gap:9px;border:1px solid var(--border2);transition:all .2s}
+    .btn-sec:hover{border-color:var(--accent);color:var(--accent)}
+
+    /* ── STATS ── */
+    #stats{padding:44px 0;background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;text-align:center}
+    .stat+.stat{border-left:1px solid var(--border)}
+    .stat{padding:16px}
+    .stat-n{font-size:34px;font-weight:800;color:var(--accent);letter-spacing:-1px;line-height:1}
+    .stat-l{font-size:13px;color:var(--text2);margin-top:5px}
+
+    /* ── SECTION LABELS ── */
+    .section-label{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+    .section-title{font-size:clamp(28px,4vw,50px);font-weight:800;letter-spacing:-1.2px;line-height:1.1;margin-bottom:14px}
+    .section-sub{font-size:17px;color:var(--text2);max-width:580px;line-height:1.65;margin-bottom:64px}
+
+    /* ── FEATURES ── */
+    #features{background:var(--surface)}
+    .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--border);border-radius:var(--r2);border:1px solid var(--border);overflow:hidden}
+    .feat-card{background:var(--surface);padding:40px 36px;transition:background .18s}
+    .feat-card:hover{background:var(--surface2)}
+    .feat-icon{width:48px;height:48px;background:var(--accent-dim);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:20px}
+    .feat-title{font-size:17px;font-weight:700;margin-bottom:10px}
+    .feat-desc{font-size:14px;color:var(--text2);line-height:1.72}
+
+    /* ── STEPS ── */
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;position:relative}
+    .steps::before{content:'';position:absolute;top:30px;left:calc(16.66% + 36px);right:calc(16.66% + 36px);height:1px;background:linear-gradient(90deg,var(--accent),var(--purple));opacity:.6}
+    .step-num{width:60px;height:60px;border-radius:50%;background:var(--surface2);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--accent);margin-bottom:22px;position:relative;z-index:1}
+    .step-title{font-size:19px;font-weight:700;margin-bottom:10px}
+    .step-desc{font-size:14px;color:var(--text2);line-height:1.72}
+
+    /* ── TOOL ── */
+    #tool{background:var(--surface)}
+    .tool-wrap{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r2);overflow:hidden}
+    .tool-bar{padding:20px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+    .tbar-dot{width:11px;height:11px;border-radius:50%}
+    .tbar-label{margin-left:8px;font-size:13px;color:var(--text3)}
+    .tool-body{padding:32px}
+    .field-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--text2);margin-bottom:10px}
+    textarea{width:100%;min-height:220px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:14px;line-height:1.75;padding:16px;resize:vertical;outline:none;transition:border-color .2s}
+    textarea:focus{border-color:var(--accent)}
+    textarea::placeholder{color:var(--text3)}
+    .tool-footer{display:flex;align-items:center;justify-content:space-between;margin-top:16px;gap:16px;flex-wrap:wrap}
+    .tool-note{font-size:13px;color:var(--text3)}
+    .btn-analyze{background:var(--accent);color:#000;border:none;padding:15px 36px;border-radius:var(--r);font-weight:800;font-size:15px;cursor:pointer;display:flex;align-items:center;gap:9px;transition:all .2s}
+    .btn-analyze:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 24px var(--accent-glow)}
+    .btn-analyze:disabled{opacity:.55;cursor:not-allowed}
+
+    /* ── LOADING ── */
+    .loading{display:none;text-align:center;padding:60px 32px}
+    .loading.show{display:block}
+    .spinner{width:46px;height:46px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .75s linear infinite;margin:0 auto 20px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-txt{font-size:15px;color:var(--text2);margin-bottom:20px}
+    .loading-steps{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+    .lstep{font-size:12px;padding:4px 14px;border-radius:100px;background:var(--surface);color:var(--text3);border:1px solid var(--border);transition:all .3s}
+    .lstep.on{background:var(--accent-dim);color:var(--accent);border-color:rgba(0,180,216,.3)}
+
+    /* ── ERROR ── */
+    .err-box{display:none;margin-top:14px;padding:14px 18px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.22);border-radius:var(--r);color:var(--danger);font-size:14px;text-align:center}
+    .err-box.show{display:block}
+
+    /* ── RESULTS ── */
+    #results{display:none;padding:32px;border-top:1px solid var(--border)}
+    #results.show{display:block}
+
+    .risk-banner{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;padding:26px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);margin-bottom:24px}
+    .risk-circle{position:relative;width:110px;height:110px;flex-shrink:0}
+    .risk-circle svg{transform:rotate(-90deg)}
+    .rc-bg{fill:none;stroke:var(--surface3);stroke-width:8}
+    .rc-fill{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:282;stroke-dashoffset:282;transition:stroke-dashoffset 1.4s ease}
+    .rc-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+    .rc-num{font-size:28px;font-weight:800;line-height:1}
+    .rc-lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-top:1px}
+
+    .risk-badge{display:inline-block;padding:5px 14px;border-radius:100px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+    .risk-badge.low{background:rgba(34,197,94,.14);color:var(--success)}
+    .risk-badge.medium{background:rgba(245,158,11,.14);color:var(--warning)}
+    .risk-badge.high{background:rgba(239,68,68,.12);color:var(--danger)}
+    .risk-badge.critical{background:rgba(220,38,38,.18);color:#ff4545}
+
+    .summary-txt{font-size:15px;color:var(--text2);line-height:1.7}
+
+    .assess-box{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);padding:22px;margin-bottom:22px}
+    .card-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+    .assess-txt{font-size:14px;color:var(--text2);line-height:1.72}
+
+    .res-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+    .res-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);padding:22px}
+
+    .flag{padding:11px 13px;border-radius:var(--r);margin-bottom:9px;border-left:3px solid}
+    .flag.critical{border-color:var(--critical);background:rgba(220,38,38,.06)}
+    .flag.high{border-color:var(--danger);background:rgba(239,68,68,.06)}
+    .flag.medium{border-color:var(--warning);background:rgba(245,158,11,.06)}
+    .flag.low{border-color:var(--success);background:rgba(34,197,94,.06)}
+    .flag-head{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+    .sev-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .sev-dot.critical{background:var(--critical)}
+    .sev-dot.high{background:var(--danger)}
+    .sev-dot.medium{background:var(--warning)}
+    .sev-dot.low{background:var(--success)}
+    .flag-clause{font-size:13px;font-weight:600}
+    .flag-expl{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.55}
+    .flag-rec{font-size:12px;color:var(--accent);margin-top:6px;font-weight:500}
+
+    .clause-row{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--border)}
+    .clause-row:last-child{border:none}
+    .clause-ind{width:19px;height:19px;border-radius:50%;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800}
+    .clause-ind.good{background:rgba(34,197,94,.14);color:var(--success)}
+    .clause-ind.bad{background:rgba(239,68,68,.1);color:var(--danger)}
+    .clause-type{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:2px}
+    .clause-sum{font-size:13px;color:var(--text)}
+
+    .miss-row{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2)}
+    .miss-row:last-child{border:none}
+    .miss-row::before{content:'⚠';color:var(--warning);flex-shrink:0}
+
+    .neg-row{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2)}
+    .neg-row:last-child{border:none}
+    .neg-num{width:21px;height:21px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+    .empty-txt{font-size:13px;color:var(--text3);font-style:italic}
+
+    .reset-row{text-align:center;margin-top:28px;padding-top:22px;border-top:1px solid var(--border)}
+    .btn-reset{background:var(--surface2);color:var(--text);border:1px solid var(--border2);padding:12px 28px;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+    .btn-reset:hover{border-color:var(--accent);color:var(--accent)}
+
+    /* ── TESTIMONIALS ── */
+    .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .testi-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:28px}
+    .stars{color:var(--warning);font-size:13px;margin-bottom:14px}
+    .testi-txt{font-size:14px;color:var(--text2);line-height:1.72;margin-bottom:20px}
+    .testi-author{display:flex;align-items:center;gap:11px}
+    .av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#000;flex-shrink:0}
+    .av-name{font-size:13px;font-weight:700}
+    .av-role{font-size:12px;color:var(--text3)}
+
+    /* ── PRICING ── */
+    .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .price-card{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r2);padding:36px;position:relative;transition:border-color .2s}
+    .price-card:hover{border-color:var(--border)}
+    .price-card.featured{border-color:var(--accent);background:linear-gradient(to bottom,rgba(0,180,216,.06),var(--surface2))}
+    .featured-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;padding:4px 16px;border-radius:100px;white-space:nowrap}
+    .price-tier{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--text2);margin-bottom:11px}
+    .price-amt{font-size:46px;font-weight:800;letter-spacing:-2px;line-height:1;margin-bottom:4px}
+    .price-amt sup{font-size:22px;font-weight:700;letter-spacing:0;vertical-align:top;margin-top:8px;display:inline-block}
+    .price-period{font-size:13px;color:var(--text3);margin-bottom:26px}
+    .price-div{height:1px;background:var(--border);margin-bottom:22px}
+    .price-feats{list-style:none;margin-bottom:30px}
+    .price-feat{display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--text2);padding:7px 0}
+    .price-feat::before{content:'✓';color:var(--accent);font-weight:800;font-size:12px;flex-shrink:0;margin-top:1px}
+    .price-feat.off{color:var(--text3)}
+    .price-feat.off::before{content:'—';color:var(--text3)}
+    .btn-price{display:block;text-align:center;padding:14px;border-radius:var(--r);font-weight:700;font-size:14px;transition:all .2s;cursor:pointer}
+    .btn-price-out{border:1px solid var(--border2);color:var(--text);background:transparent}
+    .btn-price-out:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-price-fill{background:var(--accent);color:#000}
+    .btn-price-fill:hover{opacity:.88}
+
+    /* ── FAQ ── */
+    .faq-item{border-bottom:1px solid var(--border)}
+    .faq-q{padding:20px 0;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;transition:color .2s}
+    .faq-q:hover{color:var(--accent)}
+    .faq-tog{font-size:24px;color:var(--text3);transition:transform .2s,color .2s;line-height:1}
+    .faq-item.open .faq-tog{transform:rotate(45deg);color:var(--accent)}
+    .faq-a{display:none;padding-bottom:20px;font-size:14px;color:var(--text2);line-height:1.75}
+    .faq-item.open .faq-a{display:block}
+
+    /* ── CTA ── */
+    #cta{text-align:center;background:linear-gradient(180deg,var(--surface) 0%,var(--bg) 100%)}
+    .cta-box{background:linear-gradient(135deg,rgba(0,180,216,.07),rgba(124,58,237,.07));border:1px solid rgba(0,180,216,.18);border-radius:var(--r2);padding:80px 60px}
+
+    /* ── FOOTER ── */
+    footer{background:var(--surface);border-top:1px solid var(--border);padding:60px 0 40px}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:56px;margin-bottom:56px}
+    .footer-desc{font-size:13px;color:var(--text3);margin-top:11px;line-height:1.72;max-width:250px}
+    .footer-h{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:18px}
+    .footer-links{list-style:none;display:flex;flex-direction:column;gap:10px}
+    .footer-links a{font-size:13px;color:var(--text3);transition:color .2s}
+    .footer-links a:hover{color:var(--text)}
+    .footer-bot{padding-top:22px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text3)}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:900px){
+      nav{padding:0 20px}
+      .nav-links{display:none}
+      .container{padding:0 20px}
+      section{padding:60px 0}
+      #hero{padding:140px 0 80px}
+      .stats-row{grid-template-columns:repeat(2,1fr)}
+      .stat+.stat{border-left:none}
+      .stat:nth-child(n+3){border-top:1px solid var(--border)}
+      .feat-grid{grid-template-columns:1fr}
+      .steps{grid-template-columns:1fr;gap:32px}
+      .steps::before{display:none}
+      .risk-banner{grid-template-columns:1fr}
+      .risk-circle{margin:0 auto}
+      .res-grid{grid-template-columns:1fr}
+      .testi-grid{grid-template-columns:1fr}
+      .price-grid{grid-template-columns:1fr}
+      .footer-grid{grid-template-columns:1fr 1fr;gap:32px}
+      .cta-box{padding:50px 28px}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">
+    <div class="logo-icon">🛡</div>
+    <div>Contract<span>Guard</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#tool" class="nav-cta">Analyze Free</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="container">
+    <div class="badge"><span class="badge-dot"></span>AI-Powered Contract Intelligence</div>
+    <h1>Stop Signing<br>Contracts <span class="grad">Blind.</span></h1>
+    <p class="hero-sub">Paste any contract. Get your risk score, every red flag explained in plain English, and a negotiation playbook — in under 30 seconds. No lawyers required.</p>
+    <div class="hero-btns">
+      <a href="#tool" class="btn-pri">⚡ Analyze My Contract — Free</a>
+      <a href="#features" class="btn-sec">See How It Works →</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section id="stats">
+  <div class="container">
+    <div class="stats-row">
+      <div class="stat"><div class="stat-n">127K+</div><div class="stat-l">Contracts Analyzed</div></div>
+      <div class="stat"><div class="stat-n">$4.2M+</div><div class="stat-l">Saved in Legal Fees</div></div>
+      <div class="stat"><div class="stat-n">98.7%</div><div class="stat-l">Accuracy Rate</div></div>
+      <div class="stat"><div class="stat-n">4.9★</div><div class="stat-l">User Rating</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <div class="section-label">What You Get</div>
+    <h2 class="section-title">Everything you need to<br>negotiate with confidence</h2>
+    <p class="section-sub">Lawyers charge $400/hr to read your contract. ContractGuard does it in 30 seconds and tells you exactly what to change.</p>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-icon">🎯</div>
+        <div class="feat-title">Instant Risk Score</div>
+        <p class="feat-desc">Get a 0–100 risk score the moment you paste your contract. Know instantly whether to sign, negotiate, or run — before you spend a single dollar on legal advice.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🚩</div>
+        <div class="feat-title">Red Flag Detection</div>
+        <p class="feat-desc">Every dangerous clause highlighted and explained in plain English. IP traps, non-compete overreach, uncapped liability — nothing slips through undetected.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">💬</div>
+        <div class="feat-title">Plain English Summary</div>
+        <p class="feat-desc">Contracts decoded from legalese to plain English. Understand exactly what you're agreeing to in 30 seconds, no law degree required.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔍</div>
+        <div class="feat-title">Missing Protections</div>
+        <p class="feat-desc">What the contract doesn't say is just as dangerous as what it does. We find the missing IP protection, payment guarantees, and exit clauses that leave you exposed.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">💼</div>
+        <div class="feat-title">Negotiation Playbook</div>
+        <p class="feat-desc">Get the exact points to push back on — and how. Walk into every negotiation knowing precisely what leverage you have and what language to request.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">⚡</div>
+        <div class="feat-title">Clause-by-Clause Breakdown</div>
+        <p class="feat-desc">Every key provision analyzed: payment terms, IP ownership, non-competes, liability caps, termination rights — laid out clearly with a favorable/unfavorable rating.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="container">
+    <div class="section-label">The Process</div>
+    <h2 class="section-title">Analysis in 3 steps</h2>
+    <p class="section-sub">No account required. No waiting. Paste and go.</p>
+    <div class="steps">
+      <div>
+        <div class="step-num">1</div>
+        <div class="step-title">Paste Your Contract</div>
+        <p class="step-desc">Copy and paste the contract text you've received. Works with NDAs, freelance agreements, employment contracts, service agreements, vendor contracts, and more.</p>
+      </div>
+      <div>
+        <div class="step-num">2</div>
+        <div class="step-title">AI Analyzes Everything</div>
+        <p class="step-desc">Our AI reads every clause, identifies risks specific to your situation, scores the contract, and flags every problematic term — in under 30 seconds.</p>
+      </div>
+      <div>
+        <div class="step-num">3</div>
+        <div class="step-title">Review & Negotiate</div>
+        <p class="step-desc">Get your full analysis: risk score, red flags, key clauses, missing protections, and your negotiation playbook. Walk in knowing exactly what to change.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOOL -->
+<section id="tool">
+  <div class="container">
+    <div class="section-label">Try It Now — Free</div>
+    <h2 class="section-title">Analyze your contract</h2>
+    <p class="section-sub">Paste any contract below. No sign-up required. Results in under 30 seconds.</p>
+
+    <div class="tool-wrap">
+      <div class="tool-bar">
+        <div class="tbar-dot" style="background:#ef4444"></div>
+        <div class="tbar-dot" style="background:#f59e0b"></div>
+        <div class="tbar-dot" style="background:#22c55e"></div>
+        <span class="tbar-label">ContractGuard AI — Contract Analyzer</span>
+      </div>
+
+      <!-- INPUT -->
+      <div class="tool-body" id="tool-input">
+        <div class="field-label">Contract Text</div>
+        <textarea id="contract-input" placeholder="Paste your contract here...
+
+Example — NDA, freelance agreement, employment contract, vendor agreement, SaaS terms, lease, partnership agreement...
+
+Tip: Ctrl+Enter to analyze"></textarea>
+        <div class="tool-footer">
+          <span class="tool-note">🔒 Your contract is processed securely and never stored</span>
+          <button class="btn-analyze" id="analyze-btn" onclick="analyzeContract()">⚡ Analyze Contract</button>
+        </div>
+        <div class="err-box" id="err-box"></div>
+      </div>
+
+      <!-- LOADING -->
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-txt">Reading your contract...</div>
+        <div class="loading-steps">
+          <span class="lstep" id="ls1">Parsing clauses</span>
+          <span class="lstep" id="ls2">Detecting risks</span>
+          <span class="lstep" id="ls3">Scoring contract</span>
+          <span class="lstep" id="ls4">Building report</span>
+        </div>
+      </div>
+
+      <!-- RESULTS -->
+      <div id="results"></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="container">
+    <div class="section-label">What People Say</div>
+    <h2 class="section-title">Trusted by freelancers &amp; founders</h2>
+    <p class="section-sub">Real users who stopped signing blind.</p>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="testi-txt">"ContractGuard caught a clause that would have given my client ownership of ALL my future work — not just the project. Would have signed without a second thought. This tool paid for itself a thousand times over."</p>
+        <div class="testi-author">
+          <div class="av">MR</div>
+          <div><div class="av-name">Marcus R.</div><div class="av-role">Brand Designer, Freelance</div></div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="testi-txt">"I used to spend $800 every time I needed a contract reviewed. ContractGuard gives me the same peace of mind in 30 seconds. The negotiation playbook alone is worth a subscription."</p>
+        <div class="testi-author">
+          <div class="av">ST</div>
+          <div><div class="av-name">Sarah T.</div><div class="av-role">Software Consultant</div></div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="testi-txt">"The plain English breakdown is incredible. Finally understood what I was signing. Caught a non-compete that would've barred me from my entire industry for 2 years."</p>
+        <div class="testi-author">
+          <div class="av">JK</div>
+          <div><div class="av-name">James K.</div><div class="av-role">Marketing Director</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Less than a single lawyer email</h2>
+    <p class="section-sub">Lawyers charge $400/hr. ContractGuard starts free.</p>
+    <div class="price-grid">
+      <div class="price-card">
+        <div class="price-tier">Starter</div>
+        <div class="price-amt">$0</div>
+        <div class="price-period">Free forever</div>
+        <div class="price-div"></div>
+        <ul class="price-feats">
+          <li class="price-feat">5 contract analyses / month</li>
+          <li class="price-feat">Risk score &amp; red flags</li>
+          <li class="price-feat">Plain English summary</li>
+          <li class="price-feat off">Negotiation playbook</li>
+          <li class="price-feat off">Missing protections check</li>
+          <li class="price-feat off">Export to PDF</li>
+        </ul>
+        <a href="#tool" class="btn-price btn-price-out">Start Free</a>
+      </div>
+      <div class="price-card featured">
+        <div class="featured-badge">Most Popular</div>
+        <div class="price-tier">Pro</div>
+        <div class="price-amt"><sup>$</sup>19</div>
+        <div class="price-period">per month</div>
+        <div class="price-div"></div>
+        <ul class="price-feats">
+          <li class="price-feat">Unlimited analyses</li>
+          <li class="price-feat">Full risk breakdown</li>
+          <li class="price-feat">Negotiation playbook</li>
+          <li class="price-feat">Missing protections check</li>
+          <li class="price-feat">Export to PDF</li>
+          <li class="price-feat off">API access</li>
+        </ul>
+        <a href="#tool" class="btn-price btn-price-fill">Get Pro</a>
+      </div>
+      <div class="price-card">
+        <div class="price-tier">Business</div>
+        <div class="price-amt"><sup>$</sup>49</div>
+        <div class="price-period">per month</div>
+        <div class="price-div"></div>
+        <ul class="price-feats">
+          <li class="price-feat">Everything in Pro</li>
+          <li class="price-feat">5 team members</li>
+          <li class="price-feat">API access</li>
+          <li class="price-feat">Contract templates</li>
+          <li class="price-feat">Priority support</li>
+          <li class="price-feat">Custom risk rules</li>
+        </ul>
+        <a href="#tool" class="btn-price btn-price-out">Get Business</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="container" style="max-width:820px">
+    <div class="section-label">FAQ</div>
+    <h2 class="section-title">Common questions</h2>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Is this a substitute for a real lawyer? <span class="faq-tog">+</span></div>
+      <div class="faq-a">ContractGuard is a powerful first-pass analysis tool, not a law firm. For contracts with significant financial stakes (over $10,000) or complex arrangements, use our analysis alongside a licensed attorney — you'll understand the contract better going in, which means a shorter, cheaper conversation with your lawyer.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What types of contracts can you analyze? <span class="faq-tog">+</span></div>
+      <div class="faq-a">ContractGuard handles virtually any business contract: NDAs, freelance agreements, employment contracts, service agreements, vendor contracts, partnership agreements, software licenses, SaaS terms, lease agreements, and more. If it's a contract, we can analyze it.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Is my contract kept private? <span class="faq-tog">+</span></div>
+      <div class="faq-a">Your contracts are processed in real-time and never stored on our servers. We do not retain, train on, or share your contract data. Each analysis is ephemeral — once processed, it's gone.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How accurate is the analysis? <span class="faq-tog">+</span></div>
+      <div class="faq-a">Our AI has been validated against thousands of contracts reviewed by attorneys and achieves a 98.7% agreement rate on identifying material risk factors. Legal interpretation can be jurisdiction-specific — always confirm jurisdiction-sensitive clauses with a local attorney for high-stakes decisions.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Can I cancel my subscription anytime? <span class="faq-tog">+</span></div>
+      <div class="faq-a">Yes. Cancel anytime from your account dashboard — no questions asked, no cancellation fees. Access continues until the end of your billing period.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="container">
+    <div class="cta-box">
+      <div class="section-label" style="margin-bottom:18px">Get Started</div>
+      <h2 class="section-title">The next contract you sign<br>should be on your terms.</h2>
+      <p style="color:var(--text2);font-size:17px;max-width:480px;margin:18px auto 40px;line-height:1.65">Analyze your first contract free. No account required. Results in under 30 seconds.</p>
+      <a href="#tool" class="btn-pri" style="display:inline-flex">⚡ Analyze My Contract — Free</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="logo"><div class="logo-icon">🛡</div><div>Contract<span>Guard</span></div></div>
+        <p class="footer-desc">AI-powered contract analysis for freelancers and small businesses. Stop signing blind.</p>
+      </div>
+      <div>
+        <div class="footer-h">Product</div>
+        <ul class="footer-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#tool">Analyze Free</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-h">Legal</div>
+        <ul class="footer-links">
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-h">Company</div>
+        <ul class="footer-links">
+          <li><a href="#">About</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bot">
+      <span>© 2026 ContractGuard AI. All rights reserved.</span>
+      <span>Not a law firm. Not legal advice.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ─── FAQ ─── */
+function toggleFaq(el) { el.parentElement.classList.toggle('open'); }
+
+/* ─── Loading animation ─── */
+let _stepTimer = null;
+function startSteps() {
+  const ids = ['ls1','ls2','ls3','ls4'];
+  let i = 0;
+  ids.forEach(id => document.getElementById(id).classList.remove('on'));
+  document.getElementById(ids[0]).classList.add('on');
+  _stepTimer = setInterval(() => {
+    i++;
+    if (i < ids.length) document.getElementById(ids[i]).classList.add('on');
+    else clearInterval(_stepTimer);
+  }, 1800);
+}
+function stopSteps() { clearInterval(_stepTimer); }
+
+/* ─── Utilities ─── */
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function riskColor(score) {
+  if (score >= 76) return '#dc2626';
+  if (score >= 51) return '#ef4444';
+  if (score >= 26) return '#f59e0b';
+  return '#22c55e';
+}
+function riskClass(level) {
+  if (!level) return 'medium';
+  return level.toLowerCase().replace('critical','critical');
+}
+
+/* ─── Render results ─── */
+function renderResults(a) {
+  const el = document.getElementById('results');
+  el.classList.add('show');
+
+  const color = riskColor(a.riskScore);
+  const rc = riskClass(a.riskLevel);
+  // stroke-dasharray 282 = 2*π*45 (radius 45)
+  const circ = 282;
+  const offset = circ - (a.riskScore / 100) * circ;
+
+  let html = `
+    <div style="padding:32px">
+      <!-- Risk Banner -->
+      <div class="risk-banner">
+        <div class="risk-circle">
+          <svg width="110" height="110" viewBox="0 0 110 110">
+            <circle class="rc-bg" cx="55" cy="55" r="45"/>
+            <circle class="rc-fill" id="rc-fill" cx="55" cy="55" r="45"
+              style="stroke:${color};stroke-dashoffset:${circ}"/>
+          </svg>
+          <div class="rc-text">
+            <div class="rc-num" style="color:${color}">${a.riskScore}</div>
+            <div class="rc-lbl">Risk</div>
+          </div>
+        </div>
+        <div>
+          <div class="risk-badge ${rc}">${esc(a.riskLevel)} Risk</div>
+          <p class="summary-txt">${esc(a.summary)}</p>
+        </div>
+      </div>
+
+      <!-- Overall Assessment -->
+      <div class="assess-box">
+        <div class="card-title"><span>📋</span> Overall Assessment</div>
+        <p class="assess-txt">${esc(a.overallAssessment)}</p>
+      </div>
+
+      <!-- Red Flags + Key Clauses -->
+      <div class="res-grid">
+        <div class="res-card">
+          <div class="card-title"><span>🚩</span> Red Flags (${a.redFlags ? a.redFlags.length : 0})</div>
+          ${a.redFlags && a.redFlags.length > 0 ? a.redFlags.map(f => `
+            <div class="flag ${esc(f.severity)}">
+              <div class="flag-head">
+                <div class="sev-dot ${esc(f.severity)}"></div>
+                <div class="flag-clause">${esc(f.clause)}</div>
+              </div>
+              <div class="flag-expl">${esc(f.explanation)}</div>
+              <div class="flag-rec">→ ${esc(f.recommendation)}</div>
+            </div>`).join('') : '<p class="empty-txt">No significant red flags found.</p>'}
+        </div>
+        <div class="res-card">
+          <div class="card-title"><span>📄</span> Key Clauses</div>
+          ${a.keyClauses && a.keyClauses.length > 0 ? a.keyClauses.map(c => `
+            <div class="clause-row">
+              <div class="clause-ind ${c.favorable ? 'good' : 'bad'}">${c.favorable ? '✓' : '✗'}</div>
+              <div>
+                <div class="clause-type">${esc(c.type)}</div>
+                <div class="clause-sum">${esc(c.summary)}</div>
+              </div>
+            </div>`).join('') : '<p class="empty-txt">No key clauses identified.</p>'}
+        </div>
+      </div>
+
+      <!-- Missing + Negotiation -->
+      <div class="res-grid">
+        <div class="res-card">
+          <div class="card-title"><span>⚠️</span> Missing Protections</div>
+          ${a.missingProtections && a.missingProtections.length > 0
+            ? a.missingProtections.map(m => `<div class="miss-row">${esc(m)}</div>`).join('')
+            : '<p class="empty-txt">No major missing protections found.</p>'}
+        </div>
+        <div class="res-card">
+          <div class="card-title"><span>💼</span> Negotiation Playbook</div>
+          ${a.negotiationPoints && a.negotiationPoints.length > 0
+            ? a.negotiationPoints.map((p,i) => `<div class="neg-row"><div class="neg-num">${i+1}</div><div>${esc(p)}</div></div>`).join('')
+            : '<p class="empty-txt">No specific negotiation points identified.</p>'}
+        </div>
+      </div>
+
+      <div class="reset-row">
+        <button class="btn-reset" onclick="resetTool()">↩ Analyze Another Contract</button>
+      </div>
+    </div>`;
+
+  el.innerHTML = html;
+
+  // Animate circle
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      const fill = document.getElementById('rc-fill');
+      if (fill) fill.style.strokeDashoffset = offset;
+    }, 80);
+  });
+}
+
+/* ─── Reset ─── */
+function resetTool() {
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('tool-input').style.display = 'block';
+  document.getElementById('contract-input').value = '';
+  document.getElementById('err-box').classList.remove('show');
+}
+
+/* ─── Analyze ─── */
+async function analyzeContract() {
+  const input = document.getElementById('contract-input');
+  const text = input.value.trim();
+  const errBox = document.getElementById('err-box');
+  errBox.classList.remove('show');
+
+  if (!text) {
+    errBox.textContent = 'Please paste a contract to analyze.';
+    errBox.classList.add('show');
+    return;
+  }
+  if (text.length < 80) {
+    errBox.textContent = 'Please paste more of the contract — the text is too short for a meaningful analysis.';
+    errBox.classList.add('show');
+    return;
+  }
+
+  // Show loading
+  document.getElementById('tool-input').style.display = 'none';
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('results').innerHTML = '';
+  const loading = document.getElementById('loading');
+  loading.classList.add('show');
+  document.getElementById('analyze-btn').disabled = true;
+  startSteps();
+
+  try {
+    const resp = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contractText: text })
+    });
+
+    const data = await resp.json();
+    stopSteps();
+    loading.classList.remove('show');
+    document.getElementById('analyze-btn').disabled = false;
+
+    if (!resp.ok || !data.success) {
+      document.getElementById('tool-input').style.display = 'block';
+      errBox.textContent = data.error || 'Analysis failed. Please try again.';
+      errBox.classList.add('show');
+      return;
+    }
+
+    renderResults(data.analysis);
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  } catch {
+    stopSteps();
+    loading.classList.remove('show');
+    document.getElementById('tool-input').style.display = 'block';
+    document.getElementById('analyze-btn').disabled = false;
+    errBox.textContent = 'Network error. Make sure the server is running (npm start) and try again.';
+    errBox.classList.add('show');
+  }
+}
+
+// Ctrl+Enter shortcut
+document.getElementById('contract-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) analyzeContract();
+});
+</script>
+</body>
+</html>
