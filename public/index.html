@@ -447,57 +447,25 @@ Tip: Ctrl+Enter to analyze"></textarea>
 
 <!-- PRICING -->
 <section id="pricing">
-  <div class="container">
+  <div class="container" style="text-align:center">
     <div class="section-label">Pricing</div>
-    <h2 class="section-title">Less than a single lawyer email</h2>
-    <p class="section-sub">Lawyers charge $400/hr. ContractGuard starts free.</p>
-    <div class="price-grid">
-      <div class="price-card">
-        <div class="price-tier">Starter</div>
-        <div class="price-amt">$0</div>
-        <div class="price-period">Free forever</div>
-        <div class="price-div"></div>
-        <ul class="price-feats">
-          <li class="price-feat">5 contract analyses / month</li>
-          <li class="price-feat">Risk score &amp; red flags</li>
-          <li class="price-feat">Plain English summary</li>
-          <li class="price-feat off">Negotiation playbook</li>
-          <li class="price-feat off">Missing protections check</li>
-          <li class="price-feat off">Export to PDF</li>
-        </ul>
-        <a href="#tool" class="btn-price btn-price-out">Start Free</a>
-      </div>
-      <div class="price-card featured">
-        <div class="featured-badge">Most Popular</div>
-        <div class="price-tier">Pro</div>
-        <div class="price-amt"><sup>$</sup>19</div>
-        <div class="price-period">per month</div>
-        <div class="price-div"></div>
-        <ul class="price-feats">
-          <li class="price-feat">Unlimited analyses</li>
-          <li class="price-feat">Full risk breakdown</li>
-          <li class="price-feat">Negotiation playbook</li>
-          <li class="price-feat">Missing protections check</li>
-          <li class="price-feat">Export to PDF</li>
-          <li class="price-feat off">API access</li>
-        </ul>
-        <button class="btn-price btn-price-fill" onclick="startCheckout('pro', this)">Get Pro</button>
-      </div>
-      <div class="price-card">
-        <div class="price-tier">Business</div>
-        <div class="price-amt"><sup>$</sup>49</div>
-        <div class="price-period">per month</div>
-        <div class="price-div"></div>
-        <ul class="price-feats">
-          <li class="price-feat">Everything in Pro</li>
-          <li class="price-feat">5 team members</li>
-          <li class="price-feat">API access</li>
-          <li class="price-feat">Contract templates</li>
-          <li class="price-feat">Priority support</li>
-          <li class="price-feat">Custom risk rules</li>
-        </ul>
-        <button class="btn-price btn-price-out" onclick="startCheckout('business', this)">Get Business</button>
-      </div>
+    <h2 class="section-title">100% Free — No Subscriptions</h2>
+    <p class="section-sub" style="margin:0 auto 48px">ContractGuard is completely free to use. No limits, no credit card, no subscription required. Every feature is available to everyone.</p>
+    <div style="background:var(--surface2);border:2px solid var(--accent);border-radius:var(--r2);padding:52px 40px;max-width:520px;margin:0 auto">
+      <div style="font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:16px">Everything Included</div>
+      <div style="font-size:80px;font-weight:800;letter-spacing:-3px;line-height:1;margin-bottom:8px;color:var(--accent)">Free</div>
+      <div style="font-size:14px;color:var(--text3);margin-bottom:36px">Always. No limits. No account required.</div>
+      <div style="height:1px;background:var(--border);margin-bottom:28px"></div>
+      <ul class="price-feats" style="text-align:left;margin-bottom:36px">
+        <li class="price-feat">Unlimited contract analyses</li>
+        <li class="price-feat">Instant risk score (0–100)</li>
+        <li class="price-feat">Red flag detection &amp; explanation</li>
+        <li class="price-feat">Plain English summary</li>
+        <li class="price-feat">Full clause-by-clause breakdown</li>
+        <li class="price-feat">Negotiation playbook</li>
+        <li class="price-feat">Missing protections check</li>
+      </ul>
+      <a href="#tool" class="btn-price btn-price-fill" style="display:block;padding:16px;font-size:15px;font-weight:800">⚡ Start Analyzing — Free</a>
     </div>
   </div>
 </section>
@@ -525,8 +493,8 @@ Tip: Ctrl+Enter to analyze"></textarea>
       <div class="faq-a">Our AI has been validated against thousands of contracts reviewed by attorneys and achieves a 98.7% agreement rate on identifying material risk factors. Legal interpretation can be jurisdiction-specific — always confirm jurisdiction-sensitive clauses with a local attorney for high-stakes decisions.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Can I cancel my subscription anytime? <span class="faq-tog">+</span></div>
-      <div class="faq-a">Yes. Cancel anytime from your account dashboard — no questions asked, no cancellation fees. Access continues until the end of your billing period.</div>
+      <div class="faq-q" onclick="toggleFaq(this)">Is ContractGuard really free? <span class="faq-tog">+</span></div>
+      <div class="faq-a">Yes — completely free, no credit card required, no account needed, no usage limits. Just paste your contract and get your analysis instantly.</div>
     </div>
   </div>
 </section>
@@ -788,32 +756,6 @@ document.getElementById('contract-input').addEventListener('keydown', e => {
   if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) analyzeContract();
 });
 
-/* ─── Stripe Checkout ─── */
-async function startCheckout(plan, btn) {
-  const orig = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = 'Redirecting...';
-
-  try {
-    const resp = await fetch('/api/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plan })
-    });
-    const data = await resp.json();
-    if (!resp.ok || !data.url) {
-      alert(data.error || 'Could not start checkout. Please try again.');
-      btn.disabled = false;
-      btn.textContent = orig;
-      return;
-    }
-    window.location.href = data.url;
-  } catch {
-    alert('Network error. Make sure the server is running.');
-    btn.disabled = false;
-    btn.textContent = orig;
-  }
-}
 </script>
 </body>
 </html>
