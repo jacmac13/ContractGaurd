@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
@@ -16,7 +16,7 @@ app.use(express.json({ limit: '150kb' }));
 app.use(express.static(join(__dirname, 'public')));
 
 // Stable system prompt — cached via cache_control
-const SYSTEM_PROMPT = `You are ContractGuard AI, an expert contract analyst specializing in protecting freelancers, consultants, and small businesses from unfair contract terms.
+const SYSTEM_PROMPT = `You are SpotTheClause AI, an expert contract analyst specializing in protecting freelancers, consultants, and small businesses from unfair contract terms.
 
 Your job is to analyze contracts and return a JSON object — nothing else, no markdown, no preamble, no explanation. Pure JSON only.
 
@@ -137,7 +137,7 @@ app.post('/api/analyze', async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`\n  ╔══════════════════════════════════╗`);
-  console.log(`  ║      ContractGuard AI  🛡         ║`);
+  console.log(`  ║     SpotTheClause AI  🔍          ║`);
   console.log(`  ╚══════════════════════════════════╝`);
   console.log(`\n  Running at: http://localhost:${PORT}`);
   console.log(`  Press Ctrl+C to stop\n`);
